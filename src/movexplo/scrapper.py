@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import logging
 
-from utils import remove_accent, duration_to_int
+from movexplo.utils import duration_to_int, remove_special_characters
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
