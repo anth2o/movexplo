@@ -1,15 +1,10 @@
-from bs4 import BeautifulSoup
 import requests
-import logging
+from bs4 import BeautifulSoup
 
-from movexplo.utils import duration_to_int, remove_special_characters
+from movexplo.constants import TOFIND, URL
+from movexplo.utils import (duration_to_int, get_logger, remove_special_characters)
 
-logger = logging.getLogger()
-logging.basicConfig(level=logging.INFO)
-
-URL = "https://www.senscritique.com/search?q={}&categories[0][0]=Films"
-
-TOFIND = "TOFIND"
+logger = get_logger("scrapper")
 
 
 def get_soup_from_url(url):
@@ -18,16 +13,15 @@ def get_soup_from_url(url):
     return soup
 
 
-def get_link_from_file(file):
-    url = URL.format(remove_accent(file["name"].replace(" ", "%20").lower()))
+def get_link_from_file(file_info):
+    url = URL.format(remove_special_characters(file_info["name"].replace(" ", "%20").lower()))
     logger.info("Searching {}".format(url))
     soup = get_soup_from_url(url)
     try:
-        file["link"] = get_link_from_soup(soup)
-    except IndexError as e:
-        logger.warning("Search failed for {} at url {}".format(file["name"], url))
-        file["link"] = TOFIND
-    return file
+        return get_link_from_soup(soup)
+    except (IndexError, AttributeError) as e:
+        logger.warning("Search failed for {} at url {}".format(file_info["name"], url))
+        return TOFIND
 
 
 def get_link_from_soup(soup):

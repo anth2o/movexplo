@@ -1,8 +1,10 @@
-import json
-import unidecode
-from datetime import datetime
 import hashlib
+import json
+import logging
+from datetime import datetime
 from functools import partial
+
+import unidecode
 
 
 def open_json(json_file):
@@ -17,8 +19,14 @@ def write_json(json_file, lines):
             f.write(json.dumps(line) + "\n")
 
 
-def remove_accent(_str):
+def remove_special_characters(_str):
     return unidecode.unidecode(u"{}".format(_str))
+
+
+def get_logger(name, level=logging.INFO):
+    logger = logging.getLogger()
+    logging.basicConfig(level=level)
+    return logger
 
 
 def md5(filename):
@@ -47,17 +55,20 @@ def search_files(files, name):
         return files
     new_files = []
     for file in files:
-        name = remove_accent(name.lower())
-        if name in remove_accent(file["name"].lower()) or name in remove_accent(
-                file["director"].lower()):
+        name = remove_special_characters(name.lower())
+        if name in remove_special_characters(
+            file["name"].lower()
+        ) or name in remove_special_characters(file["director"].lower()):
             new_files.append(file)
     return new_files
 
 
 def order_files(files):
-    return sorted(files,
-                  key=lambda x: (
-                      x["director"].split(" ")[-1],
-                      x["director"],
-                      datetime.strptime(x["date"], "%Y-%m-%d"),
-                  ))
+    return sorted(
+        files,
+        key=lambda x: (
+            x["director"].split(" ")[-1], # last name
+            x["director"],
+            datetime.strptime(x["date"], "%Y-%m-%d"),
+        )
+    )

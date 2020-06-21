@@ -1,8 +1,8 @@
-from flask import flash, render_template, request, redirect, Flask
 import os
-import unidecode
 
-from movexplo.utils import open_json, remove_accent, search_files, order_files
+from flask import Flask, render_template, request
+
+from movexplo.utils import open_json, order_files, search_files
 
 app = Flask(__name__)
 
