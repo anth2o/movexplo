@@ -48,9 +48,8 @@ def search_files(files, name):
     new_files = []
     for file in files:
         name = remove_accent(name.lower())
-        if name in remove_accent(
-                file["name"].lower()) or name in remove_accent(
-                    file["director"].lower()):
+        if name in remove_accent(file["name"].lower()) or name in remove_accent(
+                file["director"].lower()):
             new_files.append(file)
     return new_files
 

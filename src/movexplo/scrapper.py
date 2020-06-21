@@ -25,8 +25,7 @@ def get_link_from_file(file):
     try:
         file["link"] = get_link_from_soup(soup)
     except IndexError as e:
-        logger.warning("Search failed for {} at url {}".format(
-            file["name"], url))
+        logger.warning("Search failed for {} at url {}".format(file["name"], url))
         file["link"] = TOFIND
     return file
 

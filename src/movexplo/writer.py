@@ -24,10 +24,15 @@ def list_files_info_from_folder(folder):
                 sub_folder_files_info[0]["name"] = sub_folder.name
                 sub_folder_files_info[0]["renamed"] = True
         files_info += sub_folder_files_info
-    video_files = [x for x in folder.iterdir() if x.name.split(".")
-                   [-1] in VIDEO_EXTENSIONS and x.name[0] != "."]
-    files_info += [{"name": format_video_file_name(x.name), "size": x.stat().st_size, "md5": md5(x)}
-                   for x in video_files]
+    video_files = [
+        x for x in folder.iterdir()
+        if x.name.split(".")[-1] in VIDEO_EXTENSIONS and x.name[0] != "."
+    ]
+    files_info += [{
+        "name": format_video_file_name(x.name),
+        "size": x.stat().st_size,
+        "md5": md5(x)
+    } for x in video_files]
     del video_files
     return files_info
 
@@ -48,8 +53,7 @@ def enrich_file(file):
             try:
                 file[field] = method(soup)
             except (IndexError, ValueError) as e:
-                logger.warning(
-                    "No {} found for {}".format(field, file["link"]))
+                logger.warning("No {} found for {}".format(field, file["link"]))
                 logger.error(e)
                 file[field] = TOFIND
     file["enriched"] = True
@@ -57,18 +61,21 @@ def enrich_file(file):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='Resume a folder or enrich a file inside a json')
-    parser.add_argument('--output_file', default="data.json",
-                        type=str, help='the json file where to write the results')
-    parser.add_argument('--input_folder', default=None,
-                        type=str, help='the folder to process')
-    parser.add_argument('--input_file', default=None,
-                        type=str, help='the file to enrich')
-    parser.add_argument('--enrich', dest='enrich', action='store_true',
+    parser = argparse.ArgumentParser(description='Resume a folder or enrich a file inside a json')
+    parser.add_argument('--output_file',
+                        default="data.json",
+                        type=str,
+                        help='the json file where to write the results')
+    parser.add_argument('--input_folder', default=None, type=str, help='the folder to process')
+    parser.add_argument('--input_file', default=None, type=str, help='the file to enrich')
+    parser.add_argument('--enrich',
+                        dest='enrich',
+                        action='store_true',
                         help='add this flag to enrich the data with external database')
     parser.set_defaults(enrich=False)
-    parser.add_argument('--force_enriche', dest='force_enrich', action='store_true',
+    parser.add_argument('--force_enriche',
+                        dest='force_enrich',
+                        action='store_true',
                         help='add this flag to force enrich')
     parser.set_defaults(enrich=False)
     args = parser.parse_args()
@@ -88,8 +95,7 @@ if __name__ == "__main__":
             raise FileNotFoundError(input_path)
         files_info = open_json(input_path)
         if args.input_folder is not None:
-            files_info_from_folder = list_files_info_from_folder(
-                Path(args.input_folder))
+            files_info_from_folder = list_files_info_from_folder(Path(args.input_folder))
             for file_info_from_folder in files_info_from_folder:
                 updated = False
                 for i in range(len(files_info)):
@@ -99,8 +105,7 @@ if __name__ == "__main__":
                         updated = True
                         break
                 if not updated:
-                    logger.warning("{} is new".format(
-                        file_info_from_folder["name"]))
+                    logger.warning("{} is new".format(file_info_from_folder["name"]))
                     files_info.append(file_info_from_folder)
 
     if args.enrich or args.force_enrich:

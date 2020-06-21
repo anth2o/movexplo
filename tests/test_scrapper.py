@@ -37,6 +37,7 @@ def test_get_genre():
     genres = get_genres_from_soup(soup)
     assert genres == ["Thriller", "Drame"]
 
+
 def test_get_duration():
     html = "<li class='pvi-productDetails-item'><meta itemprop='duration' content='PT7680S'>2 h 08 min</li>"
     soup = BeautifulSoup(html, "html.parser")
