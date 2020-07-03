@@ -1,6 +1,18 @@
+# Python
 __pycache__
-.vscode
+*.egg-info
 .ipynb_checkpoints
 *.ipynb
+
+# IDE
+.vscode
+
+# Virtual env
 env
-*.egg-info
+
+# Environement variables
+.env
+
+# Coverage
+.coverage
+coverage.xml
