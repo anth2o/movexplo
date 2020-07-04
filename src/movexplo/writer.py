@@ -1,11 +1,12 @@
-import argparse
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+import typer
 
 from movexplo.constants import TOFIND, VIDEO_EXTENSIONS
 from movexplo.scrapper import (FIELD_TO_METHOD, get_link_from_file, get_soup_from_url)
-from movexplo.utils import get_logger, md5, open_json, write_json
+from movexplo.utils import get_logger, md5, read_json, write_json
 
 logger = get_logger("writer")
 
@@ -21,17 +22,17 @@ def get_files_info(input_file: str, input_folder: str) -> List[Dict]:
     if not input_path.is_file():
         raise FileNotFoundError(input_path)
 
-    files_info = open_json(input_path)
+    files_info = read_json(input_path)
     if input_folder is None:
         return files_info
 
     files_info_from_folder = list_files_info_from_folder(Path(input_folder))
     for file_info_from_folder in files_info_from_folder:
         updated = False
-        for i in range(len(files_info)):
-            if files_info[i]["md5"] == file_info_from_folder["md5"]:
+        for file_info in files_info:
+            if file_info["md5"] == file_info_from_folder["md5"]:
                 file_info_from_folder.pop("name")
-                files_info[i].update(file_info_from_folder)
+                file_info.update(file_info_from_folder)
                 updated = True
                 break
         if not updated:
@@ -96,7 +97,7 @@ def enrich_file(file_info: Dict):
     for field, method in FIELD_TO_METHOD.items():
         if not file_info.get(field):
             try:
-                file_info[field] = method(soup)
+                file_info[field] = method(soup) or TOFIND
             except (IndexError, ValueError, AttributeError) as e:
                 logger.warning("No {} found for {}".format(field, file_info["link"]))
                 logger.error(e)
@@ -105,43 +106,39 @@ def enrich_file(file_info: Dict):
     return file_info
 
 
-def get_args():
-    parser = argparse.ArgumentParser(description='Resume a folder or enrich a file inside a json')
-    parser.add_argument(
-        '--output_file',
-        default="data.json",
-        type=str,
-        help='the json file where to write the results'
-    )
-    parser.add_argument('--input_folder', default=None, type=str, help='the folder to process')
-    parser.add_argument('--input_file', default=None, type=str, help='the file to enrich')
-    parser.add_argument(
-        '--enrich',
-        dest='enrich',
-        action='store_true',
-        help='add this flag to enrich the data with external database'
-    )
-    parser.set_defaults(enrich=False)
-    parser.add_argument(
-        '--force_enrich',
-        dest='force_enrich',
-        action='store_true',
-        help='add this flag to force enrich'
-    )
-    parser.set_defaults(enrich=False)
-    args = parser.parse_args()
-    if args.input_file is None and args.input_folder is None:
-        raise ValueError("You must define at least input_file or input_folder")
-    return args
+def main(
+    output_file: str = typer.Argument(..., help="The json file where to write the results"),
+    input_folder: Optional[str] = typer.Argument(None, help="The folder to process"),
+    input_file: Optional[str] = typer.Argument(None, help="The file to enrich"),
+    enrich: bool = typer.Option(
+        False, help="Whether to enrich the dataset with an external database"
+    ),
+    force_enrich: bool = typer.Option(
+        False,
+        help=
+        "To enrich again files that are already enriched. Useful if you want to update the infos from files."
+    ),
+):
+    """Extracts file infos from a folder or enrich a file inside a json.
+    If you provide not input_file or input_folder, output_file will be used as input file and enrich
+    will be set to true.
+    This is useful to enrich a file.
+    """
+    if input_file is None and input_folder is None:
+        input_file = output_file
+        enrich = True
+    output_path = Path(output_file)
+    if output_path.is_file() and Path(input_file) != output_path:
+        raise FileExistsError(output_path)
+    files_info = get_files_info(input_file, input_folder)
+    if enrich or force_enrich:
+        files_info = enrich_files(files_info, force_enrich)
 
+    write_json(output_file, files_info)
+
+
+def _main():
+    typer.run(main)
 
 if __name__ == "__main__":
-    args = get_args()
-    output_path = Path(args.output_file)
-    if output_path.is_file() and Path(args.input_file) != output_path:
-        raise FileExistsError(output_path)
-    files_info = get_files_info(args.input_file, args.input_folder)
-    if args.enrich or args.force_enrich:
-        files_info = enrich_files(files_info, args.force_enrich)
-
-    write_json(args.output_file, files_info)
+    _main()

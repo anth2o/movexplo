@@ -30,7 +30,6 @@ def get_link_from_soup(soup):
     for link in links:
         if link["href"] is not None:
             return link["href"]
-    return None
 
 
 def get_image_from_soup(soup):
@@ -58,7 +57,6 @@ def get_duration_from_soup(soup):
     for item in items:
         if item.find("meta", itemprop="duration"):
             return duration_to_int(item.text.replace("\n", "").replace("\t", ""))
-    raise IndexError
 
 
 FIELD_TO_METHOD = {

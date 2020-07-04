@@ -6,9 +6,10 @@ import pytest
 from bs4 import BeautifulSoup
 
 from movexplo.constants import TOFIND
-from movexplo.utils import md5, write_json
+from movexplo.utils import md5, read_json, write_json
 from movexplo.writer import (
-    enrich_file, enrich_files, format_video_file_name, get_files_info, list_files_info_from_folder
+    enrich_file, enrich_files, format_video_file_name, get_files_info, list_files_info_from_folder,
+    main
 )
 
 
@@ -205,3 +206,155 @@ def test_enrich_file(mockingbird, mocker, name):
         "link": f"www.a-dumb-link.com/{name}"
     }
     assert file_info == expected_file_info
+
+
+@pytest.mark.parametrize("enrich", [True, False])
+@pytest.mark.parametrize("force_enrich", [True, False])
+@mock.patch("movexplo.writer.enrich_file", side_effect=mock_enrich_file)
+def test_main(mockingbird, folder, tmpdir, enrich, force_enrich):
+    output_file = os.path.join(tmpdir, "output.json")
+    with pytest.raises(FileNotFoundError):
+        main(output_file, None, None)
+
+
+    files_info = [
+        {
+            "a": "b",
+            "enriched": True,
+            "name": "a",
+            "md5": "0cc175b9c0f1b6a831c399e269772661"
+        },
+        {
+            "c": "d",
+            "enriched": False,
+            "name": "c",
+            "md5": "e2fc714c4727ee9395f324cd2e7f331f"
+        },
+        {
+            "e": "f",
+            "name": "e",
+            "md5": "187ef4436122d1cc2f40dc2b92f0eba0"
+        },
+    ]
+    input_file = os.path.join(tmpdir, "input.json")
+    write_json(input_file, files_info)
+
+    open(output_file, "x")
+    with pytest.raises(FileExistsError):
+        main(output_file, None, input_file)
+    os.remove(output_file)
+
+    main(output_file, folder, input_file, enrich, force_enrich)
+    if force_enrich:
+        expected_files_info = [
+            {
+                "name": "a",
+                "size": 1,
+                "md5": "0cc175b9c0f1b6a831c399e269772661",
+                "renamed": True,
+                "enriched": True,
+                "mock_enriched": True,
+                "a": "b"
+            },
+            {
+                "name": "c",
+                "size": 4,
+                "md5": "e2fc714c4727ee9395f324cd2e7f331f",
+                "c": "d",
+                "enriched": False,
+                "mock_enriched": True
+            },
+            {
+                "name": "e",
+                "size": 2,
+                "md5": "187ef4436122d1cc2f40dc2b92f0eba0",
+                "e": "f",
+                "mock_enriched": True
+            },
+            {
+                "name": "movie_3",
+                "size": 3,
+                "md5": "900150983cd24fb0d6963f7d28e17f72",
+                "mock_enriched": True
+            },
+            {
+                "name": "movie_4",
+                "size": 0,
+                "md5": "d41d8cd98f00b204e9800998ecf8427e",
+                "mock_enriched": True
+            },
+        ]
+    elif enrich:
+        expected_files_info = [
+            {
+                "name": "a",
+                "size": 1,
+                "md5": "0cc175b9c0f1b6a831c399e269772661",
+                "renamed": True,
+                "enriched": True,
+                "a": "b"
+            },
+            {
+                "name": "c",
+                "size": 4,
+                "md5": "e2fc714c4727ee9395f324cd2e7f331f",
+                "c": "d",
+                "enriched": False,
+                "mock_enriched": True
+            },
+            {
+                "name": "e",
+                "size": 2,
+                "md5": "187ef4436122d1cc2f40dc2b92f0eba0",
+                "e": "f",
+                "mock_enriched": True
+            },
+            {
+                "name": "movie_3",
+                "size": 3,
+                "md5": "900150983cd24fb0d6963f7d28e17f72",
+                "mock_enriched": True
+            },
+            {
+                "name": "movie_4",
+                "size": 0,
+                "md5": "d41d8cd98f00b204e9800998ecf8427e",
+                "mock_enriched": True
+            },
+        ]
+    else:
+        expected_files_info = [
+            {
+                "name": "a",
+                "size": 1,
+                "md5": "0cc175b9c0f1b6a831c399e269772661",
+                "renamed": True,
+                "enriched": True,
+                "a": "b"
+            },
+            {
+                "name": "c",
+                "size": 4,
+                "md5": "e2fc714c4727ee9395f324cd2e7f331f",
+                "c": "d",
+                "enriched": False,
+            },
+            {
+                "name": "e",
+                "size": 2,
+                "md5": "187ef4436122d1cc2f40dc2b92f0eba0",
+                "e": "f",
+            },
+            {
+                "name": "movie_3",
+                "size": 3,
+                "md5": "900150983cd24fb0d6963f7d28e17f72",
+            },
+            {
+                "name": "movie_4",
+                "size": 0,
+                "md5": "d41d8cd98f00b204e9800998ecf8427e",
+            },
+        ]
+    files_info = read_json(output_file)
+    assert sorted(files_info, key=lambda a: a["name"]) == expected_files_info

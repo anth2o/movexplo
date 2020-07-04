@@ -88,8 +88,11 @@ def test_order_files():
             "duration": 33,
             "date": "2018-11-07"
         },
+        {
+            "name": "non", # last element
+        },
     ]
 
-    expected_output = [files[2], files[1], files[3], files[0]]
+    expected_output = [files[2], files[1], files[3], files[0], files[-1]]
     output = order_files(files)
     assert output == expected_output

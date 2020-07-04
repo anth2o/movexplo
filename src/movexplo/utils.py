@@ -7,7 +7,7 @@ from functools import partial
 import unidecode
 
 
-def open_json(json_file):
+def read_json(json_file):
     with open(json_file, "r") as f:
         lines = f.readlines()
     return [json.loads(line) for line in lines]
@@ -57,8 +57,8 @@ def search_files(files, name):
     for file in files:
         name = remove_special_characters(name.lower())
         if name in remove_special_characters(
-            file["name"].lower()
-        ) or name in remove_special_characters(file["director"].lower()):
+            file.get("name", "").lower()
+        ) or name in remove_special_characters(file.get("director", "").lower()):
             new_files.append(file)
     return new_files
 
@@ -67,8 +67,8 @@ def order_files(files):
     return sorted(
         files,
         key=lambda x: (
-            x["director"].split(" ")[-1], # last name
-            x["director"],
-            datetime.strptime(x["date"], "%Y-%m-%d"),
+            x.get("director", "z").split(" ")[-1],  # last name
+            x.get("director", "z"),
+            datetime.strptime(x.get("date", "2100-01-01"), "%Y-%m-%d"),
         )
     )

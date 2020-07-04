@@ -8,7 +8,6 @@ https://movexplo.herokuapp.com/
 
 ## Roadmap
 
-- [ ] Use typer instead of argparse for the CLI
 - [ ] Improve the behaviour of movies discovery:
   - [ ] remove doubles
   - [ ] add the possibility to mask a movie
