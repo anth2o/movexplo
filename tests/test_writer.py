@@ -70,7 +70,18 @@ def test_get_files_info(folder, tmpdir):
     file_info_path = os.path.join(tmpdir, "file_info.json")
     with pytest.raises(FileNotFoundError):
         get_files_info(file_info_path, None)
-    files_info = [{"md5": "0cc175b9c0f1b6a831c399e269772661", "name": "toto", "tata": "tutu"}]
+    files_info = [
+        {
+            "md5": "0cc175b9c0f1b6a831c399e269772661",
+            "name": "toto",
+            "tata": "tutu"
+        },
+        {
+            "md5": "900150983cd24fb0d6963f7d28e17f72",
+            "name": "trololo",
+            "ignore": True
+        },
+    ]
     write_json(file_info_path, files_info)
 
     files_info = get_files_info(file_info_path, folder)
@@ -78,9 +89,9 @@ def test_get_files_info(folder, tmpdir):
     expected_files_info = [
         {"name": "folder_4", "size": 4, "md5": "e2fc714c4727ee9395f324cd2e7f331f"},
         {"name": "movie", "size": 2, "md5": "187ef4436122d1cc2f40dc2b92f0eba0"},
-        {"name": "movie_3", "size": 3, "md5": "900150983cd24fb0d6963f7d28e17f72"},
         {"name": "movie_4", "size": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e"},
         {"name": "toto", "size": 1, "md5": "0cc175b9c0f1b6a831c399e269772661", "renamed": True, "tata": "tutu"},
+        {"name": "trololo", "size": 3, "md5": "900150983cd24fb0d6963f7d28e17f72", "ignore": True},
     ]
     # yapf: enable
     assert sorted(files_info, key=lambda a: a["name"]) == expected_files_info
@@ -135,6 +146,11 @@ def test_enrich_files(mockingbird, force_enrich):
             "e": "f",
             "name": "e"
         },
+        {
+            "g": "h",
+            "name": "g",
+            "ignore": True
+        },
     ]
     if force_enrich:
         expected_files_info = [
@@ -155,6 +171,11 @@ def test_enrich_files(mockingbird, force_enrich):
                 "mock_enriched": True,
                 "name": "e"
             },
+            {
+                "g": "h",
+                "name": "g",
+                "ignore": True
+            },
         ]
     else:
         expected_files_info = [
@@ -173,6 +194,11 @@ def test_enrich_files(mockingbird, force_enrich):
                 "e": "f",
                 "mock_enriched": True,
                 "name": "e"
+            },
+            {
+                "g": "h",
+                "name": "g",
+                "ignore": True
             },
         ]
     files_info = enrich_files(files_info, force_enrich)
@@ -215,7 +241,6 @@ def test_main(mockingbird, folder, tmpdir, enrich, force_enrich):
     output_file = os.path.join(tmpdir, "output.json")
     with pytest.raises(FileNotFoundError):
         main(output_file, None, None)
-
 
     files_info = [
         {

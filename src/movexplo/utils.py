@@ -64,6 +64,7 @@ def search_files(files, name):
 
 
 def order_files(files):
+    files = [file for file in files if not file.get("ignore")]
     return sorted(
         files,
         key=lambda x: (

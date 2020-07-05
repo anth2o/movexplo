@@ -84,6 +84,8 @@ def format_video_file_name(video_file_name: str) -> str:
 
 def enrich_files(files_info: List[Dict], force_enrich: bool = False) -> List[Dict]:
     for file_info in files_info:
+        if file_info.get("ignore"):
+            continue
         if force_enrich or not file_info.get("enriched", False):
             logger.info("Enriching {}".format(file_info["name"]))
             file_info = enrich_file(file_info)

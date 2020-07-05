@@ -8,9 +8,6 @@ https://movexplo.herokuapp.com/
 
 ## Roadmap
 
-- [ ] Improve the behaviour of movies discovery:
-  - [ ] remove doubles
-  - [ ] add the possibility to mask a movie
 - [ ] Setup a proper database instead of a JSON file (probably mongo)
 - [ ] Improve search engine (year, duration, rate, already seen, genres)
 - [ ] Improve UI

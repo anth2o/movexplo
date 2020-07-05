@@ -89,6 +89,13 @@ def test_order_files():
             "date": "2018-11-07"
         },
         {
+            "name": "trololo",
+            "director": "tutu poulet", # ignored
+            "duration": 33,
+            "date": "2018-11-07",
+            "ignore": True
+        },
+        {
             "name": "non", # last element
         },
     ]
