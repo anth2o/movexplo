@@ -1,7 +1,1 @@
-beautifulsoup4>=4.8.1
-requests>=2.22.0
-Flask>=1.1.1
-unidecode>=1.1.1
-gunicorn==19.9.0
-typer>=0.3.0
--e . # used for heroku to install the package
+. # used for heroku to install the package
