@@ -10,6 +10,8 @@ from movexplo.utils import get_logger, md5, read_json, write_json
 
 logger = get_logger("writer")
 
+typer_app = typer.Typer()
+
 
 def get_files_info(input_file: str, input_folder: str) -> List[Dict]:
     if input_file is None and input_folder is None:
@@ -107,7 +109,7 @@ def enrich_file(file_info: Dict):
     file_info["enriched"] = True
     return file_info
 
-
+@typer_app.command()
 def main(
     output_file: str = typer.Argument(..., help="The json file where to write the results"),
     input_folder: Optional[str] = typer.Argument(None, help="The folder to process"),
@@ -140,7 +142,8 @@ def main(
 
 
 def _main():
-    typer.run(main)
+    typer_app()
+
 
 if __name__ == "__main__":
-    _main()
+    typer_app()

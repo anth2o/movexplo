@@ -4,12 +4,13 @@ from unittest import mock
 
 import pytest
 from bs4 import BeautifulSoup
+from typer.testing import CliRunner
 
 from movexplo.constants import TOFIND
 from movexplo.utils import md5, read_json, write_json
 from movexplo.writer import (
     enrich_file, enrich_files, format_video_file_name, get_files_info, list_files_info_from_folder,
-    main
+    main, typer_app
 )
 
 
@@ -38,7 +39,7 @@ def folder(tmpdir):
     with open(os.path.join(folder_path, "movie_5.mkv"), "x") as f:
         f.write("abcd")  # md5 = "e2fc714c4727ee9395f324cd2e7f331f"
 
-    return tmpdir
+    return tmpdir.strpath
 
 
 def test_get_files_info_no_input_file(folder):
@@ -236,12 +237,9 @@ def test_enrich_file(mockingbird, mocker, name):
 
 @pytest.mark.parametrize("enrich", [True, False])
 @pytest.mark.parametrize("force_enrich", [True, False])
+@pytest.mark.parametrize("entrypoint", ["main", "typer_app"])
 @mock.patch("movexplo.writer.enrich_file", side_effect=mock_enrich_file)
-def test_main(mockingbird, folder, tmpdir, enrich, force_enrich):
-    output_file = os.path.join(tmpdir, "output.json")
-    with pytest.raises(FileNotFoundError):
-        main(output_file, None, None)
-
+def test_main(mockingbird, folder, tmpdir, enrich, force_enrich, entrypoint):
     files_info = [
         {
             "a": "b",
@@ -263,13 +261,29 @@ def test_main(mockingbird, folder, tmpdir, enrich, force_enrich):
     ]
     input_file = os.path.join(tmpdir, "input.json")
     write_json(input_file, files_info)
+    output_file = os.path.join(tmpdir, "output.json")
 
-    open(output_file, "x")
-    with pytest.raises(FileExistsError):
-        main(output_file, None, input_file)
-    os.remove(output_file)
+    if entrypoint == "main":
+        with pytest.raises(FileNotFoundError):  # nor output_file, input_folder and input_file exist
+            main(output_file, None, None, enrich, force_enrich)
 
-    main(output_file, folder, input_file, enrich, force_enrich)
+        open(output_file, "x")
+        with pytest.raises(FileExistsError):  # output_file exists and is different from input_file
+            main(output_file, None, input_file, enrich, force_enrich)
+        os.remove(output_file)
+
+        main(output_file, folder, input_file, enrich, force_enrich)
+    elif entrypoint == "typer_app":
+        params = [output_file, folder, input_file]
+        if enrich:
+            params.append("--enrich")
+        if force_enrich:
+            params.append("--force-enrich")
+        runner = CliRunner()
+        result = runner.invoke(typer_app, params)
+        assert result.exit_code == 0
+    else:
+        raise NotImplementedError(entrypoint)
     if force_enrich:
         expected_files_info = [
             {
