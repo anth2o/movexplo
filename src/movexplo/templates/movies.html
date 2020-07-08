@@ -1,0 +1,23 @@
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="icon" href="https://cdn2.iconfinder.com/data/icons/creative-icons-2/64/ACTION-512.png">
+    <title>Movies Explorer</title>
+</head>
+
+<div class="container">
+    <form method="post">
+        <input type=submit value=Home>
+        <input type="text" placeholder="Search.." name="title">
+        <input type=submit value=Search>
+    </form>
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col">
+            <a href="{{movie.link}}"">
+                <img src="{{movie.image}}">
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>

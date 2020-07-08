@@ -10,14 +10,18 @@
         <input type=submit value=Home>
         <input type="text" placeholder="Search.." name="title">
         <input type=submit value=Search>
-    </form>
-    <div class="row">
-        {% for item in data %}
-        <div class="col">
-            <a href="{{item.link}}"">
-                <img src="{{item.image}}">
-            </a>
+        {% for genre, movies in data.items() %}
+        <div class="row">
+            <input type=submit value={{genre}} name={{genre}}>
+            <!-- <div></div> -->
+            <!-- <div class="col">
+            {% for movie in movies %}
+                <a href="{{movie.link}}"">
+                    <img src="{{movie.image}}">
+                </a>
+            {% endfor %}
+        </div> -->
         </div>
         {% endfor %}
-    </div>
+    </form>
 </div>

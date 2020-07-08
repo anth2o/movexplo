@@ -8,6 +8,7 @@ https://movexplo.herokuapp.com/
 
 ## Roadmap
 
+- [ ] Add typing (files)
 - [ ] Setup a proper database instead of a JSON file (probably mongo)
 - [ ] Improve search engine (year, duration, rate, already seen, genres)
 - [ ] Improve UI

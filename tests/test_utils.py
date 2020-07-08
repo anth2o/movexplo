@@ -2,7 +2,8 @@ import os
 
 import pytest
 
-from movexplo.utils import (duration_to_int, md5, order_files, remove_special_characters, search_files)
+from movexplo.utils import (duration_to_int, group_by, md5, order_files,
+                            remove_special_characters, search_files)
 
 
 @pytest.mark.parametrize(
@@ -103,3 +104,55 @@ def test_order_files():
     expected_output = [files[2], files[1], files[3], files[0], files[-1]]
     output = order_files(files)
     assert output == expected_output
+
+def test_group_by():
+    files = [
+        {
+            "name": "toto",
+            "director": "tata",
+            "genres": ["tutu"],
+            "date": "2020-06-10"
+        },
+        {
+            "name": "flute",
+            "director": "tutu louis",
+            "duration": 30,
+            "date": "2019-12-04",
+            "ignore": True,
+            "genres": ["tutu", "tata"]
+        },
+        {
+            "name": "tata",
+            "director": "tutu louis",
+            "duration": 20,
+            "date": "2018-08-12",
+            "genres": ["tata"]
+        },
+        {
+            "name": "flute",
+            "director": "tutu poulet",
+            "duration": 33,
+            "date": "2018-11-07",
+            "genres": ["toto", "tata"]
+        },
+        {
+            "name": "trololo",
+            "director": "tutu poulet",
+            "duration": 33,
+            "date": "2018-11-07",
+            "genres": ["tutu", "toto", "tata"]
+        },
+        {
+            "name": "trololo",
+            "director": "tutu poulet",
+            "duration": 33,
+            "date": "2018-11-07",
+        },
+    ]
+    expected_field_to_files = {
+        "tata": [files[1], files[2], files[3], files[4]],
+        "tutu": [files[0], files[1], files[4]],
+        "toto": [files[3], files[4]]
+    }
+    field_to_files = group_by(files, "genres")
+    assert field_to_files == expected_field_to_files
