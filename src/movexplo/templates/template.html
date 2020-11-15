@@ -10,12 +10,21 @@
         <input type=submit value=Home>
         <input type="text" placeholder="Search.." name="title">
         <input type=submit value=Search>
+
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="director">Director</option>
+            <option value="added_on">Added on</option>
+            <option value="duration">Duration</option>
+            <option value="date">Date</option>
+            <option value="name">Name</option>
+        </select>
     </form>
     <div class="row">
         {% for item in data %}
         <div class="col">
             <a href="{{item.link}}"">
-                <img src="{{item.image}}">
+                <img src=" {{item.image}}">
             </a>
         </div>
         {% endfor %}

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
-
+from datetime import datetime
 import typer
 
 from movexplo.constants import TOFIND, VIDEO_EXTENSIONS
@@ -64,11 +64,13 @@ def list_files_info_from_folder(folder: str) -> List[Dict]:
         x for x in folder.iterdir()
         if x.name.split(".")[-1] in VIDEO_EXTENSIONS and x.name[0] != "."
     ]
+
     files_info += [
         {
             "name": format_video_file_name(x.name),
             "size": x.stat().st_size,
-            "md5": md5(x)
+            "md5": md5(x),
+            "added_on": os.path.getctime(x),
         } for x in video_files
     ]
     return files_info
@@ -108,6 +110,7 @@ def enrich_file(file_info: Dict):
                 file_info[field] = TOFIND
     file_info["enriched"] = True
     return file_info
+
 
 @typer_app.command()
 def main(

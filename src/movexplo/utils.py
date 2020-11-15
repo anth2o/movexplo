@@ -63,8 +63,13 @@ def search_files(files, name):
     return new_files
 
 
-def order_files(files):
+def order_files(files, key=None):
     files = [file for file in files if not file.get("ignore")]
+    if key is not None and key != "director":
+        files_with_key = [file for file in files if file.get(key, "TOFIND") != "TOFIND"]
+        return sorted(files_with_key, key=lambda x: x[key], reverse=key in ["added_on"]) + [
+            file for file in files if file.get(key, "TOFIND") == "TOFIND"
+        ]
     return sorted(
         files,
         key=lambda x: (

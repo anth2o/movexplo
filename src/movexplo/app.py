@@ -15,5 +15,7 @@ def index():
     search = request.form
     if request.method == 'POST':
         files = search_files(files, search["title"])
-    files = order_files(files)
+        files = order_files(files, key=search["sort"])
+    else:
+        files = order_files(files)
     return render_template("template.html", data=files)
