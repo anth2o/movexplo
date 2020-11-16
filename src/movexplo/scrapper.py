@@ -59,10 +59,23 @@ def get_duration_from_soup(soup):
             return duration_to_int(item.text.replace("\n", "").replace("\t", ""))
 
 
+def get_name_from_soup(soup):
+    item = soup.find("h1", "pvi-product-title")
+    return item["title"]
+
+
+def get_original_name_from_soup(soup):
+    item = soup.find("h2", "pvi-product-originaltitle")
+    if item:
+        return item.text
+
+
 FIELD_TO_METHOD = {
     "image": get_image_from_soup,
     "director": get_director_from_soup,
     "date": get_date_from_soup,
     "genres": get_genres_from_soup,
-    "duration": get_duration_from_soup
+    "duration": get_duration_from_soup,
+    "name": get_name_from_soup,
+    "original_name": get_original_name_from_soup,
 }

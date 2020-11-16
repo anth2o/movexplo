@@ -99,15 +99,17 @@ def enrich_files(files_info: List[Dict], force_enrich: bool = False) -> List[Dic
 def enrich_file(file_info: Dict):
     if file_info.get("link") is None:
         file_info["link"] = get_link_from_file(file_info)
+    if file_info["link"] == TOFIND:
+        return file_info
     soup = get_soup_from_url(file_info["link"])
     for field, method in FIELD_TO_METHOD.items():
-        if not file_info.get(field):
-            try:
-                file_info[field] = method(soup) or TOFIND
-            except (IndexError, ValueError, AttributeError) as e:
-                logger.warning("No {} found for {}".format(field, file_info["link"]))
-                logger.error(e)
-                file_info[field] = TOFIND
+        # if not file_info.get(field):
+        try:
+            file_info[field] = method(soup) or TOFIND
+        except (IndexError, ValueError, AttributeError) as e:
+            logger.warning("No {} found for {}".format(field, file_info["link"]))
+            logger.error(e)
+            file_info[field] = TOFIND
     file_info["enriched"] = True
     return file_info
 
