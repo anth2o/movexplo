@@ -44,7 +44,8 @@ def get_director_from_soup(soup):
 
 def get_date_from_soup(soup):
     item = soup.find("time")
-    return item["datetime"]
+    if item:
+        return item["datetime"]
 
 
 def get_genres_from_soup(soup):
