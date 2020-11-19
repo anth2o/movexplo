@@ -56,9 +56,10 @@ def search_files(files, name):
     new_files = []
     for file in files:
         name = remove_special_characters(name.lower())
-        if name in remove_special_characters(
-            file.get("name", "").lower()
-        ) or name in remove_special_characters(file.get("director", "").lower()):
+        if name in [
+            remove_special_characters(file.get(field))
+            for field in ["name", "original_name", "director"]
+        ]:
             new_files.append(file)
     return new_files
 

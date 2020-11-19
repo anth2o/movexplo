@@ -33,12 +33,11 @@ def get_files_info(input_file: str, input_folder: str) -> List[Dict]:
         updated = False
         for file_info in files_info:
             if file_info["md5"] == file_info_from_folder["md5"]:
-                file_info_from_folder.pop("name")
                 file_info.update(file_info_from_folder)
                 updated = True
                 break
         if not updated:
-            logger.warning("{} is new".format(file_info_from_folder["name"]))
+            logger.warning("{} is new".format(file_info_from_folder["file_name"]))
             files_info.append(file_info_from_folder)
     return files_info
 
@@ -57,7 +56,7 @@ def list_files_info_from_folder(folder: str) -> List[Dict]:
             else:
                 # this happens if there is folder/single_movie.mp4
                 # we want to keep folder as a name in this situation
-                sub_folder_files_info[0]["name"] = sub_folder.name
+                sub_folder_files_info[0]["file_name"] = sub_folder.name
                 sub_folder_files_info[0]["renamed"] = True
         files_info += sub_folder_files_info
     video_files = [
@@ -67,7 +66,7 @@ def list_files_info_from_folder(folder: str) -> List[Dict]:
 
     files_info += [
         {
-            "name": format_video_file_name(x.name),
+            "file_name": format_video_file_name(x.name),
             "size": x.stat().st_size,
             "md5": md5(x),
             "added_on": os.path.getctime(x),
@@ -91,7 +90,7 @@ def enrich_files(files_info: List[Dict], force_enrich: bool = False) -> List[Dic
         if file_info.get("ignore"):
             continue
         if force_enrich or not file_info.get("enriched", False):
-            logger.info("Enriching {}".format(file_info["name"]))
+            logger.info("Enriching {}".format(file_info["file_name"]))
             file_info = enrich_file(file_info)
     return files_info
 

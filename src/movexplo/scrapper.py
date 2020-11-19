@@ -14,13 +14,13 @@ def get_soup_from_url(url):
 
 
 def get_link_from_file(file_info):
-    url = URL.format(remove_special_characters(file_info["name"].replace(" ", "%20").lower()))
+    url = URL.format(remove_special_characters(file_info["file_name"].replace(" ", "%20").lower()))
     logger.info("Searching {}".format(url))
     soup = get_soup_from_url(url)
     try:
         return get_link_from_soup(soup)
     except (IndexError, AttributeError) as e:
-        logger.warning("Search failed for {} at url {}".format(file_info["name"], url))
+        logger.warning("Search failed for {} at url {}".format(file_info["file_name"], url))
         return TOFIND
 
 
