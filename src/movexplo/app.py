@@ -19,3 +19,6 @@ def index():
     else:
         files = order_files(files)
     return render_template("template.html", data=files)
+
+if __name__ == "__main__":
+    app.run(debug=True)

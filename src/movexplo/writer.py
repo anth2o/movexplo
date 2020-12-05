@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
-from datetime import datetime
 import typer
 
 from movexplo.constants import TOFIND, VIDEO_EXTENSIONS
